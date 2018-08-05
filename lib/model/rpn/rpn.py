@@ -5,7 +5,6 @@ import torch.nn.functional as F
 from torch.autograd import Variable
 
 from model.utils.config import cfg
-from .proposal_layer import _ProposalLayer
 from .anchor_target_layer import _AnchorTargetLayer
 from model.utils.net_utils import _smooth_l1_loss
 
@@ -35,6 +34,13 @@ class _RPN(nn.Module):
         self.nc_bbox_out = len(self.anchor_scales) * len(self.anchor_ratios) * 4 # 4(coords) * 9 (anchors)
         self.RPN_bbox_pred = nn.Conv2d(512, self.nc_bbox_out, 1, 1, 0)
 
+        if cfg.RPN.PROPOSAL_TYPE == 'normal':
+            import pdb; pdb.set_trace()
+            from .proposal_layer import _ProposalLayer
+        elif cfg.RPN.PROPOSAL_TYPE == 'bottom_up':
+            from .proposal_layer_bu import _ProposalLayer
+        else:
+            raise ValueError
         # define proposal layer
         self.RPN_proposal = _ProposalLayer(self.feat_stride, self.anchor_scales, self.anchor_ratios)
 
@@ -65,7 +71,7 @@ class _RPN(nn.Module):
         rpn_cls_score = self.RPN_cls_score(rpn_conv1)
 
         rpn_cls_score_reshape = self.reshape(rpn_cls_score, 2)
-        rpn_cls_prob_reshape = F.softmax(rpn_cls_score_reshape)
+        rpn_cls_prob_reshape = F.softmax(rpn_cls_score_reshape, dim=1)
         rpn_cls_prob = self.reshape(rpn_cls_prob_reshape, self.nc_score_out)
 
         # get rpn offsets to the anchor boxes

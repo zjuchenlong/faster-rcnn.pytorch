@@ -40,10 +40,10 @@ def parse_args():
   parser = argparse.ArgumentParser(description='Train a Fast R-CNN network')
   parser.add_argument('--dataset', dest='dataset',
                       help='training dataset',
-                      default='pascal_voc', type=str)
+                      default='coco', type=str)
   parser.add_argument('--net', dest='net',
                     help='vgg16, res101',
-                    default='vgg16', type=str)
+                    default='res101', type=str)
   parser.add_argument('--start_epoch', dest='start_epoch',
                       help='starting epoch',
                       default=1, type=int)
@@ -58,7 +58,7 @@ def parse_args():
                       default=10000, type=int)
 
   parser.add_argument('--save_dir', dest='save_dir',
-                      help='directory to save models', default="/srv/share/jyang375/models",
+                      help='directory to save models', default="./models",
                       type=str)
   parser.add_argument('--nw', dest='num_workers',
                       help='number of worker to load data',
@@ -102,15 +102,19 @@ def parse_args():
   parser.add_argument('--r', dest='resume',
                       help='resume checkpoint or not',
                       default=False, type=bool)
-  parser.add_argument('--checksession', dest='checksession',
-                      help='checksession to load model',
-                      default=1, type=int)
-  parser.add_argument('--checkepoch', dest='checkepoch',
-                      help='checkepoch to load model',
-                      default=1, type=int)
-  parser.add_argument('--checkpoint', dest='checkpoint',
+  # parser.add_argument('--checksession', dest='checksession',
+  #                     help='checksession to load model',
+  #                     default=1, type=int)
+  # parser.add_argument('--checkepoch', dest='checkepoch',
+  #                     help='checkepoch to load model',
+  #                     default=1, type=int)
+  # parser.add_argument('--checkpoint', dest='checkpoint',
+  #                     help='checkpoint to load model',
+  #                     default=0, type=int)
+  parser.add_argument('--pretrained_model', dest='pretrained_model',
                       help='checkpoint to load model',
-                      default=0, type=int)
+                      default='', type=str)
+
 # log and diaplay
   parser.add_argument('--use_tfboard', dest='use_tfboard',
                       help='whether use tensorflow tensorboard',
@@ -166,8 +170,10 @@ if __name__ == '__main__':
       args.imdbval_name = "voc_2007_test"
       args.set_cfgs = ['ANCHOR_SCALES', '[8, 16, 32]', 'ANCHOR_RATIOS', '[0.5,1,2]', 'MAX_NUM_GT_BOXES', '20']
   elif args.dataset == "coco":
-      args.imdb_name = "coco_2014_train+coco_2014_valminusminival"
-      args.imdbval_name = "coco_2014_minival"
+      # args.imdb_name = "coco_2014_train+coco_2014_valminusminival"
+      # args.imdbval_name = "coco_2014_minival"
+      args.imdb_name = "coco_2014_train"
+      args.imdbval_name = "coco_2014_val"
       args.set_cfgs = ['ANCHOR_SCALES', '[4, 8, 16, 32]', 'ANCHOR_RATIOS', '[0.5,1,2]', 'MAX_NUM_GT_BOXES', '50']
   elif args.dataset == "imagenet":
       args.imdb_name = "imagenet_train"
@@ -276,8 +282,10 @@ if __name__ == '__main__':
     optimizer = torch.optim.SGD(params, momentum=cfg.TRAIN.MOMENTUM)
 
   if args.resume:
-    load_name = os.path.join(output_dir,
-      'faster_rcnn_{}_{}_{}.pth'.format(args.checksession, args.checkepoch, args.checkpoint))
+    # load_name = os.path.join(output_dir,
+    #   'faster_rcnn_{}_{}_{}.pth'.format(args.checksession, args.checkepoch, args.checkpoint))
+    load_name = os.path.join(output_dir, args.pretrained_model)
+
     print("loading checkpoint %s" % (load_name))
     checkpoint = torch.load(load_name)
     args.session = checkpoint['session']

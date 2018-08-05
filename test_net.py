@@ -46,10 +46,10 @@ def parse_args():
   parser = argparse.ArgumentParser(description='Train a Fast R-CNN network')
   parser.add_argument('--dataset', dest='dataset',
                       help='training dataset',
-                      default='pascal_voc', type=str)
+                      default='coco', type=str)
   parser.add_argument('--cfg', dest='cfg_file',
                       help='optional config file',
-                      default='cfgs/vgg16.yml', type=str)
+                      default='cfgs/resnet101_ls.yml', type=str)
   parser.add_argument('--net', dest='net',
                       help='vgg16, res50, res101, res152',
                       default='res101', type=str)
@@ -57,7 +57,7 @@ def parse_args():
                       help='set config keys', default=None,
                       nargs=argparse.REMAINDER)
   parser.add_argument('--load_dir', dest='load_dir',
-                      help='directory to load models', default="/srv/share/jyang375/models",
+                      help='directory to load models', default="./models",
                       type=str)
   parser.add_argument('--cuda', dest='cuda',
                       help='whether use CUDA',
@@ -74,15 +74,15 @@ def parse_args():
   parser.add_argument('--parallel_type', dest='parallel_type',
                       help='which part of model to parallel, 0: all, 1: model before roi pooling',
                       default=0, type=int)
-  parser.add_argument('--checksession', dest='checksession',
-                      help='checksession to load model',
-                      default=1, type=int)
-  parser.add_argument('--checkepoch', dest='checkepoch',
-                      help='checkepoch to load network',
-                      default=1, type=int)
-  parser.add_argument('--checkpoint', dest='checkpoint',
-                      help='checkpoint to load network',
-                      default=10021, type=int)
+  # parser.add_argument('--checksession', dest='checksession',
+  #                     help='checksession to load model',
+  #                     default=1, type=int)
+  # parser.add_argument('--checkepoch', dest='checkepoch',
+  #                     help='checkepoch to load network',
+  #                     default=1, type=int)
+  # parser.add_argument('--checkpoint', dest='checkpoint',
+  #                     help='checkpoint to load network',
+  #                     default=10021, type=int)
   parser.add_argument('--vis', dest='vis',
                       help='visualization mode',
                       action='store_true')
@@ -113,8 +113,10 @@ if __name__ == '__main__':
       args.imdbval_name = "voc_2007_test"
       args.set_cfgs = ['ANCHOR_SCALES', '[8, 16, 32]', 'ANCHOR_RATIOS', '[0.5,1,2]']
   elif args.dataset == "coco":
-      args.imdb_name = "coco_2014_train+coco_2014_valminusminival"
-      args.imdbval_name = "coco_2014_minival"
+      # args.imdb_name = "coco_2014_train+coco_2014_valminusminival"
+      # args.imdbval_name = "coco_2014_minival"
+      args.imdb_name = "coco_2014_train"
+      args.imdbval_name = "coco_2014_val"
       args.set_cfgs = ['ANCHOR_SCALES', '[4, 8, 16, 32]', 'ANCHOR_RATIOS', '[0.5,1,2]']
   elif args.dataset == "imagenet":
       args.imdb_name = "imagenet_train"
@@ -144,8 +146,10 @@ if __name__ == '__main__':
   input_dir = args.load_dir + "/" + args.net + "/" + args.dataset
   if not os.path.exists(input_dir):
     raise Exception('There is no input directory for loading network from ' + input_dir)
+  # load_name = os.path.join(input_dir,
+  #   'faster_rcnn_{}_{}_{}.pth'.format(args.checksession, args.checkepoch, args.checkpoint))
   load_name = os.path.join(input_dir,
-    'faster_rcnn_{}_{}_{}.pth'.format(args.checksession, args.checkepoch, args.checkpoint))
+    'faster_rcnn_600_800.pth')
 
   # initilize the network here.
   if args.net == 'vgg16':

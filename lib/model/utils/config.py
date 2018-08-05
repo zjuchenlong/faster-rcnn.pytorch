@@ -63,7 +63,7 @@ __C.TRAIN.SUMMARY_INTERVAL = 180
 __C.TRAIN.SCALES = (600,)
 
 # Max pixel size of the longest side of a scaled input image
-__C.TRAIN.MAX_SIZE = 1000
+__C.TRAIN.MAX_SIZE = -1
 
 # Trim size for input images to create minibatch
 __C.TRAIN.TRIM_HEIGHT = 600
@@ -205,6 +205,10 @@ __C.TEST.MODE = 'nms'
 # Only useful when TEST.MODE is 'top', specifies the number of top proposals to select
 __C.TEST.RPN_TOP_N = 5000
 
+# add follow bottom-up
+__C.TEST.MIN_BOXES = -1
+__C.TEST.MAX_BOXES = -1
+
 #
 # ResNet options
 #
@@ -221,6 +225,12 @@ __C.RESNET.MAX_POOL = False
 # Range: 0 (none) to 3 (all)
 __C.RESNET.FIXED_BLOCKS = 1
 
+# differences between bottom-up setting and faster-rcnn.pytorch original setting 
+__C.RESNET.LAYER4_STRIDE = 2
+__C.RESNET.BRANCH2B_DILATION = False
+
+__C.RPN = edict()
+__C.RPN.PROPOSAL_TYPE = 'normal'
 #
 # MobileNet options
 #

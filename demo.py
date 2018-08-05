@@ -61,7 +61,7 @@ def parse_args():
                       nargs=argparse.REMAINDER)
   parser.add_argument('--load_dir', dest='load_dir',
                       help='directory to load models',
-                      default="/srv/share/jyang375/models")
+                      default="./models")
   parser.add_argument('--image_dir', dest='image_dir',
                       help='directory to load images for demo',
                       default="images")
@@ -77,15 +77,15 @@ def parse_args():
   parser.add_argument('--parallel_type', dest='parallel_type',
                       help='which part of model to parallel, 0: all, 1: model before roi pooling',
                       default=0, type=int)
-  parser.add_argument('--checksession', dest='checksession',
-                      help='checksession to load model',
-                      default=1, type=int)
-  parser.add_argument('--checkepoch', dest='checkepoch',
-                      help='checkepoch to load network',
-                      default=1, type=int)
-  parser.add_argument('--checkpoint', dest='checkpoint',
-                      help='checkpoint to load network',
-                      default=10021, type=int)
+  # parser.add_argument('--checksession', dest='checksession',
+  #                     help='checksession to load model',
+  #                     default=1, type=int)
+  # parser.add_argument('--checkepoch', dest='checkepoch',
+  #                     help='checkepoch to load network',
+  #                     default=1, type=int)
+  # parser.add_argument('--checkpoint', dest='checkpoint',
+  #                     help='checkpoint to load network',
+  #                     default=600_7, type=int)
   parser.add_argument('--bs', dest='batch_size',
                       help='batch_size',
                       default=1, type=int)
@@ -157,12 +157,12 @@ if __name__ == '__main__':
 
   # train set
   # -- Note: Use validation set and disable the flipped to enable faster loading.
-
   input_dir = args.load_dir + "/" + args.net + "/" + args.dataset
   if not os.path.exists(input_dir):
     raise Exception('There is no input directory for loading network from ' + input_dir)
-  load_name = os.path.join(input_dir,
-    'faster_rcnn_{}_{}_{}.pth'.format(args.checksession, args.checkepoch, args.checkpoint))
+  # load_name = os.path.join(input_dir,
+  #   'faster_rcnn_{}_{}_{}.pth'.format(args.checksession, args.checkepoch, args.checkpoint))
+  load_name = os.path.join(input_dir, 'faster_rcnn_600_7.pth')
 
   pascal_classes = np.asarray(['__background__',
                        'aeroplane', 'bicycle', 'bird', 'boat',

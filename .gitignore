@@ -1,4 +1,6 @@
 data/*
+models/*
+tools/caffe2th/*.pkl
 
 # READ THIS BEFORE YOU REFACTOR ME
 #

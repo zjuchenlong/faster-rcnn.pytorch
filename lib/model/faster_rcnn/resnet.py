@@ -66,12 +66,16 @@ class BasicBlock(nn.Module):
 class Bottleneck(nn.Module):
   expansion = 4
 
-  def __init__(self, inplanes, planes, stride=1, downsample=None):
+  def __init__(self, inplanes, planes, stride=1, downsample=None, branch2b_dilation=False):
     super(Bottleneck, self).__init__()
     self.conv1 = nn.Conv2d(inplanes, planes, kernel_size=1, stride=stride, bias=False) # change
     self.bn1 = nn.BatchNorm2d(planes)
-    self.conv2 = nn.Conv2d(planes, planes, kernel_size=3, stride=1, # change
-                 padding=1, bias=False)
+    if branch2b_dilation:
+      self.conv2 = nn.Conv2d(planes, planes, kernel_size=3, stride=1, # change
+                   padding=2, dilation=2, bias=False)
+    else:
+      self.conv2 = nn.Conv2d(planes, planes, kernel_size=3, stride=1, # change
+                   padding=1, bias=False)
     self.bn2 = nn.BatchNorm2d(planes)
     self.conv3 = nn.Conv2d(planes, planes * 4, kernel_size=1, bias=False)
     self.bn3 = nn.BatchNorm2d(planes * 4)
@@ -114,9 +118,14 @@ class ResNet(nn.Module):
     self.layer1 = self._make_layer(block, 64, layers[0])
     self.layer2 = self._make_layer(block, 128, layers[1], stride=2)
     self.layer3 = self._make_layer(block, 256, layers[2], stride=2)
-    self.layer4 = self._make_layer(block, 512, layers[3], stride=2)
-    # it is slightly better whereas slower to set stride = 1
-    # self.layer4 = self._make_layer(block, 512, layers[3], stride=1)
+    if cfg.RESNET.LAYER4_STRIDE == 2:
+      self.layer4 = self._make_layer(block, 512, layers[3], stride=2, branch2b_dilation=cfg.RESNET.BRANCH2B_DILATION)
+      # it is slightly better whereas slower to set stride = 1
+    elif cfg.RESNET.LAYER4_STRIDE == 1:
+      self.layer4 = self._make_layer(block, 512, layers[3], stride=1, branch2b_dilation=cfg.RESNET.BRANCH2B_DILATION)
+    else:
+      raise ValueError
+
     self.avgpool = nn.AvgPool2d(7)
     self.fc = nn.Linear(512 * block.expansion, num_classes)
 
@@ -128,7 +137,7 @@ class ResNet(nn.Module):
         m.weight.data.fill_(1)
         m.bias.data.zero_()
 
-  def _make_layer(self, block, planes, blocks, stride=1):
+  def _make_layer(self, block, planes, blocks, stride=1, branch2b_dilation=False):
     downsample = None
     if stride != 1 or self.inplanes != planes * block.expansion:
       downsample = nn.Sequential(
@@ -138,10 +147,10 @@ class ResNet(nn.Module):
       )
 
     layers = []
-    layers.append(block(self.inplanes, planes, stride, downsample))
+    layers.append(block(self.inplanes, planes, stride, downsample, branch2b_dilation=branch2b_dilation))
     self.inplanes = planes * block.expansion
     for i in range(1, blocks):
-      layers.append(block(self.inplanes, planes))
+      layers.append(block(self.inplanes, planes, branch2b_dilation=branch2b_dilation))
 
     return nn.Sequential(*layers)
 
@@ -218,11 +227,12 @@ def resnet152(pretrained=False):
   return model
 
 class resnet(_fasterRCNN):
-  def __init__(self, classes, num_layers=101, pretrained=False, class_agnostic=False):
+  def __init__(self, classes, num_layers=101, pretrained=False, class_agnostic=False, rpn_type='normal'):
     self.model_path = 'data/pretrained_model/resnet101_caffe.pth'
     self.dout_base_model = 1024
     self.pretrained = pretrained
     self.class_agnostic = class_agnostic
+    self.rpn_type = rpn_type
 
     _fasterRCNN.__init__(self, classes, class_agnostic)
 
