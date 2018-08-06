@@ -1,0 +1,24 @@
+Used for extract different visual feature
+
+1. bottom_up_origin.py: get the same visual feature as bottom-up released.
+
+
+
+
+vqa_data:
+    bottom_up_objs: pkl file include detected objs by bottom_up faster rcnn paper;
+
+
+
+
+
+
+extract_resnet.py: direct extract grid image feature after faster-rcnn head
+extract_box_resnet.py: mapping bounding box to grid image feature maps(which is after faster-rcnn head)
+    -> generate coco_448_obj
+
+
+# remove to bottom-up-attention
+extract_mid_resnet.py: mapping bounding box to feature ap which is before faster-rcnn head
+    -> generate coco_mid_grid_obj
+ 
