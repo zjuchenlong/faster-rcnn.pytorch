@@ -1,13 +1,15 @@
 Used for extract different visual feature
 
 1. bottom_up_origin.py: get the same visual feature as bottom-up released.
-
-
+2. bottom_up_stage4.py: feature the the stage4, before roipooling
 
 
 vqa_data:
     bottom_up_objs: pkl file include detected objs by bottom_up faster rcnn paper;
 
+    features:
+        bottom_up_origin: feature same as bottom_up paper
+        bottom_up_stage4: feature from output of stage4 in resnet (res4b22)
 
 
 

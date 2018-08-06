@@ -76,9 +76,9 @@ def evaluate(model, dataloader):
     upper_bound = 0
     num_data = 0
     for v, q, a in tqdm(dataloader):
-        v = v.cuda()
-        q = q.cuda()
-        pred, _ = model(v, b, q, None)
+        v = Variable(v).cuda()
+        q = Variable(q).cuda()
+        pred = model(v, q, None)
         batch_score = compute_score_with_logits(pred, a.cuda()).sum()
         score += batch_score
         upper_bound += (a.max(1)[0]).sum()
